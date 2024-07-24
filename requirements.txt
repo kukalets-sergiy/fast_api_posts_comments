@@ -1,0 +1,11 @@
+alembic==1.10.4
+fastapi==0.95.1
+uvicorn==0.22.0
+sqlalchemy==1.4.46
+alembic==1.10.4
+psycopg2-binary==2.9.6
+pydantic==1.10.8
+python-jose==3.3.0
+passlib[bcrypt]==1.7.4
+celery==5.2.7
+python-dotenv==1.0.1
