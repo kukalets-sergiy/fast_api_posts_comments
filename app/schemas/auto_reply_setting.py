@@ -1,5 +1,6 @@
-from pydantic import BaseModel
+from app.schemas.user import OurBaseModel
 
-class AutoReplySettingCreate(BaseModel):
+
+class AutoReplySettingCreate(OurBaseModel):
     delay_seconds: int
     is_enabled: bool

@@ -1,5 +1,14 @@
-from pydantic import BaseModel
+import datetime
+from app.schemas.user import OurBaseModel
 
-class CommentCreate(BaseModel):
+
+class CommentCreate(OurBaseModel):
     content: str
     post_id: int
+
+
+class CommentResponse(OurBaseModel):
+    content: str
+    post_id: int
+    owner_id: int
+    created_at: datetime.datetime
