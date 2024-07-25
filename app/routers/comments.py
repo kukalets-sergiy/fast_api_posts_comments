@@ -1,15 +1,22 @@
 from typing import List
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Security
+from fastapi_jwt import JwtAuthorizationCredentials
 from sqlalchemy.orm import Session
 from app import crud
 from app.dependencies import get_db
+from app.routers.auth import access_security
 from app.schemas.comment import CommentCreate, CommentResponse
 
 router = APIRouter()
 
 
 @router.post("/comments/", response_model=CommentCreate)
-def create_comment(comment: CommentCreate, db: Session = Depends(get_db), user_id: int = 1):
+def create_comment(
+        comment: CommentCreate,
+        db: Session = Depends(get_db),
+        credentials: JwtAuthorizationCredentials = Security(access_security)
+):
+    user_id = credentials["id"]
     return crud.create_comment(db=db, comment=comment, user_id=user_id)
 
 

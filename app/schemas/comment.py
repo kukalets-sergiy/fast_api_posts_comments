@@ -8,6 +8,7 @@ class CommentCreate(OurBaseModel):
 
 
 class CommentResponse(OurBaseModel):
+    id: int
     content: str
     post_id: int
     owner_id: int

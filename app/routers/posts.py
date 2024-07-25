@@ -1,15 +1,22 @@
 from typing import List
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Security
+from fastapi_jwt import JwtAuthorizationCredentials
 from sqlalchemy.orm import Session
 from app import crud
 from app.dependencies import get_db
+from app.routers.auth import access_security
 from app.schemas.post import PostCreate, PostResponse
 
 router = APIRouter()
 
 
 @router.post("/posts/", response_model=PostCreate)
-def create_post(post: PostCreate, db: Session = Depends(get_db), user_id: int = 1):
+def create_post(
+    post: PostCreate,
+    db: Session = Depends(get_db),
+    credentials: JwtAuthorizationCredentials = Security(access_security)
+):
+    user_id = credentials["id"]
     return crud.create_post(db=db, post=post, user_id=user_id)
 
 
