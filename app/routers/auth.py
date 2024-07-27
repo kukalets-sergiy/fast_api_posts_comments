@@ -3,14 +3,13 @@ from fastapi import APIRouter, Depends, HTTPException, Security
 from fastapi_jwt import JwtAccessBearer, JwtAuthorizationCredentials
 from sqlalchemy.orm import Session
 from app import crud
-from app.config import JWT_SECRET_KEY
+from app.config import settings
 from app.dependencies import get_db
 from app.schemas.user import UserCreate, UserResponse
 
 
 router = APIRouter()
-access_security = JwtAccessBearer(secret_key=JWT_SECRET_KEY)
-
+access_security = JwtAccessBearer(secret_key=settings.secret_key, auto_error=True)
 
 @router.post("/register", response_model=UserResponse)
 def register(user: UserCreate, db: Session = Depends(get_db)):

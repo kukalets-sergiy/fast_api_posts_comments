@@ -56,6 +56,24 @@ def get_posts(db: Session, skip: int = 0, limit: int = 10):
     return db.query(Post).offset(skip).limit(limit).all()
 
 
+def update_post(db: Session, post: PostCreate, post_id: int ):
+    db_post = db.query(Post).filter(Post.id == post_id).first()
+    if db_post:
+        db_post.title = post.title
+        db_post.content = post.content
+        db.commit()
+        db.refresh(db_post)
+    return db_post
+
+
+def delete_post(db: Session, post_id: int):
+    db_post = db.query(Post).filter(Post.id == post_id).first()
+    if db_post:
+        db.delete(db_post)
+        db.commit()
+    return db_post
+
+
 # Comment CRUD operations
 def create_comment(db: Session, comment: CommentCreate, user_id: int):
     db_comment = Comment(**comment.dict(), owner_id=user_id)
@@ -71,6 +89,23 @@ def get_comment(db: Session, comment_id: int):
 
 def get_comments(db: Session, skip: int = 0, limit: int = 10):
     return db.query(Comment).offset(skip).limit(limit).all()
+
+
+def update_comment(db: Session, comment: CommentCreate, comment_id: int):
+    db_comment = db.query(Comment).filter(Comment.id == comment_id).first()
+    if db_comment:
+        db_comment.content = comment.content
+        db.commit()
+        db.refresh(db_comment)
+    return db_comment
+
+
+def delete_comment(db: Session, comment_id: int):
+    db_comment = db.query(Comment).filter(Comment.id == comment_id).first()
+    if db_comment:
+        db.delete(db_comment)
+        db.commit()
+    return db_comment
 
 
 def create_auto_reply_setting(db: Session, auto_reply_setting: AutoReplySettingCreate, user_id: int):
