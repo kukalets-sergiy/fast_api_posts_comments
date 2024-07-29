@@ -1,3 +1,6 @@
+from collections import defaultdict
+from datetime import date
+
 from sqlalchemy.orm import Session
 from app.models.auto_reply_setting import AutoReplySetting
 from app.models.comment import Comment
@@ -56,7 +59,7 @@ def get_posts(db: Session, skip: int = 0, limit: int = 10):
     return db.query(Post).offset(skip).limit(limit).all()
 
 
-def update_post(db: Session, post: PostCreate, post_id: int ):
+def update_post(db: Session, post: PostCreate, post_id: int):
     db_post = db.query(Post).filter(Post.id == post_id).first()
     if db_post:
         db_post.title = post.title
@@ -123,3 +126,16 @@ def get_auto_reply_setting(db: Session, auto_reply_setting_id: int):
 
 def check_password(self, password: str) -> bool:
     return self.hashed_password == password
+
+
+def get_comments_daily_breakdown(db: Session, date_from: date, date_to: date):
+    comments = db.query(Comment).filter(Comment.created_at >= date_from, Comment.created_at <= date_to).all()
+    analytics = defaultdict(lambda: {'total_comments': 0, 'blocked_comments': 0})
+
+    for comment in comments:
+        comment_date = comment.created_at.date()
+        analytics[comment_date]['total_comments'] += 1
+        if comment.is_blocked:
+            analytics[comment_date]['blocked_comments'] += 1
+
+    return [{'date': date, **data} for date, data in analytics.items()]
