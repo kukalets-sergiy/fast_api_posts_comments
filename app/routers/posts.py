@@ -12,7 +12,7 @@ from app.schemas.post import PostCreate, PostResponse
 router = APIRouter()
 
 
-@router.post("/posts/", response_model=PostCreate)
+@router.post("/", response_model=PostCreate)
 def create_post(
         post: PostCreate,
         db: Session = Depends(get_db),
@@ -26,7 +26,7 @@ def create_post(
     return crud.create_post(db=db, post=post, user_id=user_id)
 
 
-@router.get("/posts/{post_id}", response_model=PostResponse)
+@router.get("/{post_id}", response_model=PostResponse)
 def get_post(post_id: int, db: Session = Depends(get_db)):
     db_post = crud.get_post(db, post_id=post_id)
     if db_post is None:

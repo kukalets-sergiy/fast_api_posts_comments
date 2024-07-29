@@ -1,4 +1,3 @@
-from typing import List
 from fastapi import APIRouter, Depends, HTTPException, Security
 from fastapi_jwt import JwtAuthorizationCredentials
 from sqlalchemy.orm import Session
@@ -9,11 +8,13 @@ from app.dependencies import get_db
 from app.profanity_checker import detect_toxicity
 from app.routers.auth import access_security
 from app.schemas.comment import CommentCreate, CommentResponse
+from typing import List
+
 
 router = APIRouter()
 
 
-@router.post("/comments/", response_model=CommentCreate)
+@router.post("/", response_model=CommentCreate)
 def create_comment(
         comment: CommentCreate,
         db: Session = Depends(get_db),
@@ -21,12 +22,12 @@ def create_comment(
 ):
 
     if detect_toxicity(comment.content):
-        raise HTTPException(status_code=400, detail="Post contains toxic content.")
+        raise HTTPException(status_code=400, detail="Comment contains toxic content.")
     user_id = credentials["id"]
     return crud.create_comment(db=db, comment=comment, user_id=user_id)
 
 
-@router.get("/comments/{comment_id}", response_model=CommentResponse)
+@router.get("/{comment_id}", response_model=CommentResponse)
 def get_comment(comment_id: int, db: Session = Depends(get_db)):
     db_comment = crud.get_comment(db, comment_id=comment_id)
     if db_comment is None:
@@ -77,13 +78,3 @@ def delete_comment(
         return JSONResponse(status_code=200, content={"detail": "Comment was deleted successfully"})
     else:
         raise HTTPException(status_code=404, detail="Comment not found")
-
-
-
-
-
-
-
-
-
-

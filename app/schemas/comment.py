@@ -12,4 +12,6 @@ class CommentResponse(OurBaseModel):
     content: str
     post_id: int
     owner_id: int
-    created_at: datetime.datetime
+    created_at: datetime.date
+
+
