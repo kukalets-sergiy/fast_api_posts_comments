@@ -8,9 +8,9 @@ client = TestClient(app)
 @pytest.fixture
 def jwt_token(request):
     user_data = {
-        "username": "testuser",
-        "email": "test@example.com",
-        "password": "password"
+        "username": "test_user",
+        "email": "test_user@example.com",
+        "password": "test_password"
     }
     response = client.post("/auth_user/register", json=user_data)
     print(f"Registration response status code: {response.status_code}")
