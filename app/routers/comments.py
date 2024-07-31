@@ -14,17 +14,22 @@ from typing import List
 router = APIRouter()
 
 
-@router.post("/", response_model=CommentCreate)
+@router.post("/", response_model=CommentResponse)
 def create_comment(
         comment: CommentCreate,
         db: Session = Depends(get_db),
         credentials: JwtAuthorizationCredentials = Security(access_security)
 ):
+    is_blocked = detect_toxicity(comment.content)
 
-    if detect_toxicity(comment.content):
-        raise HTTPException(status_code=400, detail="Comment contains toxic content.")
-    user_id = credentials["id"]
-    return crud.create_comment(db=db, comment=comment, user_id=user_id)
+    db_comment = crud.create_comment(
+        db=db,
+        comment=comment,
+        user_id=credentials["id"],
+        is_blocked=is_blocked
+    )
+
+    return db_comment
 
 
 @router.get("/{comment_id}", response_model=CommentResponse)
@@ -32,6 +37,8 @@ def get_comment(comment_id: int, db: Session = Depends(get_db)):
     db_comment = crud.get_comment(db, comment_id=comment_id)
     if db_comment is None:
         raise HTTPException(status_code=404, detail="Comment not found")
+    if db_comment.is_blocked == True:
+        raise HTTPException(status_code=400, detail="Comment contains toxic content.")
     return db_comment
 
 
@@ -42,7 +49,7 @@ def get_comments(skip: int = 0, limit: int = 20, db: Session = Depends(get_db)):
 
 
 @router.put("/update/{comment_id}", response_model=CommentResponse)
-def update_post(
+def update_comment(
     comment_id: int,
     comment: CommentCreate,
     db: Session = Depends(get_db),

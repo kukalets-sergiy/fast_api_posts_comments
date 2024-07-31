@@ -12,6 +12,8 @@ class CommentResponse(OurBaseModel):
     content: str
     post_id: int
     owner_id: int
+    is_blocked: bool
     created_at: datetime.date
+
 
 

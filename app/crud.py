@@ -1,6 +1,5 @@
 from collections import defaultdict
 from datetime import date
-
 from sqlalchemy.orm import Session
 from app.models.auto_reply_setting import AutoReplySetting
 from app.models.comment import Comment
@@ -77,9 +76,8 @@ def delete_post(db: Session, post_id: int):
     return db_post
 
 
-# Comment CRUD operations
-def create_comment(db: Session, comment: CommentCreate, user_id: int):
-    db_comment = Comment(**comment.dict(), owner_id=user_id)
+def create_comment(db: Session, comment: CommentCreate, user_id: int, is_blocked: bool):
+    db_comment = Comment(**comment.dict(), owner_id=user_id, is_blocked=is_blocked)
     db.add(db_comment)
     db.commit()
     db.refresh(db_comment)
@@ -91,7 +89,7 @@ def get_comment(db: Session, comment_id: int):
 
 
 def get_comments(db: Session, skip: int = 0, limit: int = 10):
-    return db.query(Comment).offset(skip).limit(limit).all()
+    return db.query(Comment).filter(Comment.is_blocked == False).offset(skip).limit(limit).all()
 
 
 def update_comment(db: Session, comment: CommentCreate, comment_id: int):
