@@ -77,6 +77,3 @@ def delete_post(
         return JSONResponse(status_code=200, content={"detail": "Post was deleted successfully"})
     else:
         raise HTTPException(status_code=404, detail="Post not found")
-
-
-

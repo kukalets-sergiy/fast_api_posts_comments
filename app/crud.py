@@ -5,7 +5,6 @@ from app.models.auto_reply_setting import AutoReplySetting
 from app.models.comment import Comment
 from app.models.post import Post
 from app.models.user import User
-from app.schemas.auto_reply_setting import AutoReplySettingCreate
 from app.schemas.comment import CommentCreate
 from app.schemas.post import PostCreate, PostResponse
 from app.schemas.user import UserCreate
@@ -109,19 +108,6 @@ def delete_comment(db: Session, comment_id: int):
     return db_comment
 
 
-def create_auto_reply_setting(db: Session, auto_reply_setting: AutoReplySettingCreate, user_id: int):
-    db_auto_reply_setting = AutoReplySetting(**auto_reply_setting.dict(), user_id=user_id)
-    db.add(db_auto_reply_setting)
-    db.commit()
-    db.refresh(db_auto_reply_setting)
-    return db_auto_reply_setting
-
-
-def get_auto_reply_setting(db: Session, auto_reply_setting_id: int):
-    return db.query(AutoReplySetting).filter(
-        AutoReplySetting.id == auto_reply_setting_id).first()
-
-
 def check_password(self, password: str) -> bool:
     return self.hashed_password == password
 
@@ -137,3 +123,19 @@ def get_comments_daily_breakdown(db: Session, date_from: date, date_to: date):
             analytics[comment_date]['blocked_comments'] += 1
 
     return [{'date': date, **data} for date, data in analytics.items()]
+
+
+def get_auto_reply_setting(db: Session, user_id: int):
+    return db.query(AutoReplySetting).filter(AutoReplySetting.user_id == user_id).first()
+
+def create_or_update_auto_reply_setting(db: Session, user_id: int, delay_seconds: int, is_enabled: bool):
+    setting = db.query(AutoReplySetting).filter(AutoReplySetting.user_id == user_id).first()
+    if setting:
+        setting.delay_seconds = delay_seconds
+        setting.is_enabled = is_enabled
+    else:
+        setting = AutoReplySetting(user_id=user_id, delay_seconds=delay_seconds, is_enabled=is_enabled)
+        db.add(setting)
+    db.commit()
+    db.refresh(setting)
+    return setting

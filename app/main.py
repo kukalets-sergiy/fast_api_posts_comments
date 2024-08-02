@@ -1,9 +1,5 @@
-from fastapi import FastAPI
 from .routers import auth, posts, comments, analytics
-import logging
-
-logging.basicConfig(level=logging.DEBUG)
-
+from fastapi import FastAPI
 
 app = FastAPI()
 
