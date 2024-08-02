@@ -14,7 +14,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 config = context.config
 
 # Set the SQLAlchemy URL
-config.set_main_option("sqlalchemy.url", "postgresql://sergiy:fastapi@localhost:5432/fastapi_project_db")
+config.set_main_option("sqlalchemy.url", "postgresql://sergiy:fastapi@db:5432/fastapi_project_db")
 
 
 # Interpret the config file for Python logging.

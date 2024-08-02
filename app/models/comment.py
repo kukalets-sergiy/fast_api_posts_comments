@@ -13,6 +13,8 @@ class Comment(Base):
     post_id = Column(Integer, ForeignKey("posts.id"))
     owner_id = Column(Integer, ForeignKey("users.id"))
     is_blocked = Column(Boolean, default=False)
+    parent_comment_id = Column(Integer, ForeignKey("comments.id"), nullable=True)
 
     post = relationship("Post", back_populates="comments")
     owner = relationship("User", back_populates="comments")
+    parent_comment = relationship("Comment", remote_side=[id])  # Attitude towards parental commentary

@@ -2,7 +2,6 @@ from fastapi import APIRouter, Depends, HTTPException, Security
 from fastapi_jwt import JwtAuthorizationCredentials
 from sqlalchemy.orm import Session
 from starlette.responses import JSONResponse
-
 from app import crud
 from app.dependencies import get_db
 from app.profanity_checker import detect_toxicity
