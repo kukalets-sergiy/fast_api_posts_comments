@@ -122,9 +122,11 @@ Perform a POST request to /comments/ with the following JSON data and an authent
 }
 
 # Running Tests
+(register at least one user)
 To run tests, execute the following command:
 
-pytest
+docker-compose run --rm test
+
 
 Technologies Used
 FastAPI: A modern, fast (high-performance), web framework for building APIs with Python 3.6+ based on standard Python type hints.

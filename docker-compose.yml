@@ -63,3 +63,12 @@ services:
       - app
       - redis
       - celery_worker
+  test:
+    container_name: test
+    build: .
+    command: pytest
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+      - app
