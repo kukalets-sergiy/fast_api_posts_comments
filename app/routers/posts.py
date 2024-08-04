@@ -56,7 +56,7 @@ def update_post(
     if detect_toxicity(post.title) or detect_toxicity(post.content):
         raise HTTPException(status_code=400, detail="Post contains toxic content.")
 
-    updated_post = crud.update_post(db, post=post, post_id=post_id)
+    updated_post = crud.update_post(db, post=post, post_id=post_id,)
     return updated_post
 
 

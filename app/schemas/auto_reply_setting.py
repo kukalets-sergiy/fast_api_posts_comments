@@ -6,3 +6,8 @@ class AutoReplySettingCreate(OurBaseModel):
     user_id: int
     delay_seconds: int
     is_enabled: bool
+
+
+class AutoReplySettingUpdate(OurBaseModel):
+    delay_seconds: int
+    is_enabled: bool
