@@ -2,6 +2,9 @@ from googleapiclient import discovery
 from app.config import settings
 
 
+toxicity_score = 0.7
+
+
 def detect_toxicity(text: str) -> bool:
     client = discovery.build(
         "commentanalyzer",
@@ -18,4 +21,4 @@ def detect_toxicity(text: str) -> bool:
 
     response = client.comments().analyze(body=analyze_request).execute()
     score = response['attributeScores']['TOXICITY']['summaryScore']['value']
-    return score > 0.7
+    return score > toxicity_score

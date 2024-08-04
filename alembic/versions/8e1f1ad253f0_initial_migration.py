@@ -1,8 +1,8 @@
-"""New migration
+"""initial migration
 
-Revision ID: 7bbbb2b5e7ac
-Revises: faefca969f21
-Create Date: 2024-07-30 11:49:44.508935
+Revision ID: 8e1f1ad253f0
+Revises: 
+Create Date: 2024-08-03 13:02:36.303592
 
 """
 from alembic import op
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '7bbbb2b5e7ac'
-down_revision = 'faefca969f21'
+revision = '8e1f1ad253f0'
+down_revision = None
 branch_labels = None
 depends_on = None
 
@@ -44,6 +44,8 @@ def upgrade() -> None:
     sa.Column('content', sa.Text(), nullable=True),
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.Column('owner_id', sa.Integer(), nullable=True),
+    sa.Column('auto_reply_enabled', sa.Boolean(), nullable=True),
+    sa.Column('auto_reply_delay', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['owner_id'], ['users.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
@@ -56,7 +58,9 @@ def upgrade() -> None:
     sa.Column('post_id', sa.Integer(), nullable=True),
     sa.Column('owner_id', sa.Integer(), nullable=True),
     sa.Column('is_blocked', sa.Boolean(), nullable=True),
+    sa.Column('parent_comment_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['owner_id'], ['users.id'], ),
+    sa.ForeignKeyConstraint(['parent_comment_id'], ['comments.id'], ),
     sa.ForeignKeyConstraint(['post_id'], ['posts.id'], ),
     sa.PrimaryKeyConstraint('id')
     )

@@ -5,6 +5,7 @@ from app.models.auto_reply_setting import AutoReplySetting
 from app.models.comment import Comment
 from app.models.post import Post
 from app.models.user import User
+from app.schemas.auto_reply_setting import AutoReplySettingUpdate
 from app.schemas.comment import CommentCreate
 from app.schemas.post import PostCreate, PostResponse
 from app.schemas.user import UserCreate
@@ -37,7 +38,13 @@ def get_users(db: Session, skip: int = 0, limit: int = 10):
 
 
 def create_post(db: Session, post: PostCreate, user_id: int) -> PostResponse:
-    db_post = Post(**post.dict(), owner_id=user_id)
+    db_post = Post(
+        title=post.title,
+        content=post.content,
+        owner_id=user_id,
+        auto_reply_enabled=post.auto_reply_enabled,
+        auto_reply_delay=post.auto_reply_delay
+    )
     db.add(db_post)
     db.commit()
     db.refresh(db_post)
@@ -45,7 +52,9 @@ def create_post(db: Session, post: PostCreate, user_id: int) -> PostResponse:
         id=db_post.id,
         title=db_post.title,
         content=db_post.content,
-        owner_id=db_post.owner_id
+        owner_id=db_post.owner_id,
+        auto_reply_enabled=post.auto_reply_enabled,
+        auto_reply_delay=post.auto_reply_delay
     )
 
 
@@ -62,6 +71,8 @@ def update_post(db: Session, post: PostCreate, post_id: int):
     if db_post:
         db_post.title = post.title
         db_post.content = post.content
+        db_post.auto_reply_enabled = post.auto_reply_enabled
+        db_post.auto_reply_delay = post.auto_reply_delay
         db.commit()
         db.refresh(db_post)
     return db_post
@@ -81,6 +92,10 @@ def create_comment(db: Session, comment: CommentCreate, user_id: int, is_blocked
     db.commit()
     db.refresh(db_comment)
     return db_comment
+
+
+def get_comment_with_replies(db: Session, comment_id: int) -> Comment:
+    return db.query(Comment).filter(Comment.id == comment_id).first()
 
 
 def get_comment(db: Session, comment_id: int):
@@ -128,6 +143,7 @@ def get_comments_daily_breakdown(db: Session, date_from: date, date_to: date):
 def get_auto_reply_setting(db: Session, user_id: int):
     return db.query(AutoReplySetting).filter(AutoReplySetting.user_id == user_id).first()
 
+
 def create_or_update_auto_reply_setting(db: Session, user_id: int, delay_seconds: int, is_enabled: bool):
     setting = db.query(AutoReplySetting).filter(AutoReplySetting.user_id == user_id).first()
     if setting:
@@ -139,3 +155,23 @@ def create_or_update_auto_reply_setting(db: Session, user_id: int, delay_seconds
     db.commit()
     db.refresh(setting)
     return setting
+
+
+# crud.py
+
+def update_auto_reply_setting(db: Session, user_id: int, settings: AutoReplySettingUpdate):
+    db_setting = db.query(AutoReplySetting).filter(AutoReplySetting.user_id == user_id).first()
+    if db_setting:
+        db_setting.delay_seconds = settings.delay_seconds
+        db_setting.is_enabled = settings.is_enabled
+        db.commit()
+        db.refresh(db_setting)
+        return db_setting
+    else:
+        new_setting = AutoReplySetting(user_id=user_id, **settings.dict())
+        db.add(new_setting)
+        db.commit()
+        db.refresh(new_setting)
+        return new_setting
+
+

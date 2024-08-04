@@ -1,8 +1,8 @@
-from app.database import async_session_maker
+from app.database import SessionLocal
 
 
 def get_db():
-    db = async_session_maker()
+    db = db = SessionLocal()
     try:
         yield db
     finally:

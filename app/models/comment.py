@@ -2,6 +2,7 @@ from sqlalchemy import Column, Integer, Text, DateTime, ForeignKey, Boolean
 from sqlalchemy.orm import relationship
 from datetime import datetime
 from app.database import Base
+from app.models.user import User
 
 
 class Comment(Base):
@@ -17,4 +18,4 @@ class Comment(Base):
 
     post = relationship("Post", back_populates="comments")
     owner = relationship("User", back_populates="comments")
-    parent_comment = relationship("Comment", remote_side=[id])  # Attitude towards parental commentary
+    parent_comment = relationship("Comment", remote_side=[id], backref="replies")

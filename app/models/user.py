@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, String, Boolean
 from sqlalchemy.orm import relationship
 from app.database import Base
+from app.models.auto_reply_setting import AutoReplySetting
 
 
 class User(Base):

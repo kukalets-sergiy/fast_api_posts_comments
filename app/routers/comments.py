@@ -8,7 +8,7 @@ from app.profanity_checker import detect_toxicity
 from app.routers.auth import access_security
 from app.schemas.comment import CommentCreate, CommentResponse
 from typing import List
-
+from app.tasks import auto_reply_task
 
 router = APIRouter()
 
@@ -28,7 +28,16 @@ def create_comment(
         is_blocked=is_blocked
     )
 
-    return db_comment
+    # Check if auto reply is enabled for this post
+    post = crud.get_post(db, post_id=db_comment.post_id)
+    if post.auto_reply_enabled:
+        auto_reply_task.apply_async(
+            args=(db_comment.post_id, db_comment.id),
+            countdown=post.auto_reply_delay
+        )
+    # Receiving comments along with answers
+    comment_with_replies = crud.get_comment_with_replies(db, comment_id=db_comment.id)
+    return comment_with_replies
 
 
 @router.get("/{comment_id}", response_model=CommentResponse)
@@ -36,12 +45,12 @@ def get_comment(comment_id: int, db: Session = Depends(get_db)):
     db_comment = crud.get_comment(db, comment_id=comment_id)
     if db_comment is None:
         raise HTTPException(status_code=404, detail="Comment not found")
-    if db_comment.is_blocked == True:
+    if db_comment.is_blocked:
         raise HTTPException(status_code=400, detail="Comment contains toxic content.")
     return db_comment
 
 
-@router.get("/", response_model=List[CommentResponse])
+@router.get("/", response_model=List[CommentCreate])
 def get_comments(skip: int = 0, limit: int = 20, db: Session = Depends(get_db)):
     comments = crud.get_comments(db, skip=skip, limit=limit)
     return comments

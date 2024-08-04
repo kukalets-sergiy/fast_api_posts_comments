@@ -1,11 +1,7 @@
-from app import crud
 from app.config import CELERY_BROKER_URL, CELERY_RESULT_BACKEND
 from app.database import SessionLocal
 from app.models.comment import Comment
 from app.models.post import Post
-from app.schemas.comment import CommentCreate
-
-# tasks.py
 from celery import Celery
 
 celery = Celery(__name__)
@@ -27,19 +23,25 @@ def auto_reply_task(post_id: int, comment_id: int):
         if comment:
             post = db.query(Post).filter(Post.id == post_id).first()
             if post:
-                user_setting = crud.get_auto_reply_setting(db, post.owner_id)
-                if user_setting and user_setting.is_enabled:
-                    reply_content = generate_relevant_reply(post, comment)
-                    new_comment = CommentCreate(
-                        content=reply_content,
-                        post_id=post_id,
-                        parent_comment_id=comment_id
-                    )
-                    crud.create_comment(db, new_comment, post.owner_id, is_blocked=False)
+                reply_content = generate_relevant_reply(post, comment)
+
+                new_comment = Comment(
+                    content=reply_content,
+                    post_id=post_id,
+                    parent_comment_id=comment_id,
+                    owner_id=post.owner_id,
+                    is_blocked=False
+                )
+
+                db.add(new_comment)
+                db.commit()
+                db.refresh(new_comment)
     finally:
         db.close()
 
 
 def generate_relevant_reply(post: Post, comment: Comment) -> str:
-    # A simple example of generating a relevant response
-    return f"Thank you for your comment on '{post.title}'. Your feedback is appreciated!"
+    if comment.is_blocked:
+        return f"Thank you for your comment on '{post.title}'. We noticed your concern and will address it promptly."
+    else:
+        return f"Thank you for your positive feedback on '{post.title}'. We appreciate your input!"
