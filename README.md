@@ -122,10 +122,11 @@ Perform a POST request to /comments/ with the following JSON data and an authent
 }
 
 # Running Tests
-(register at least one user)
+(register at least one user, create at least one post and comment)
 To run tests, execute the following command:
 
-docker-compose run --rm test
+docker-compose -f docker-compose_test.yml run --rm test
+
 
 
 Technologies Used
